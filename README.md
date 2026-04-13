@@ -15,7 +15,10 @@ It can also save a chart as a PNG file.
 
 ## Project structure
 
-- `src/main.py` contains the analysis script
+- `src/main.py` contains the CLI entry point
+- `src/data_loader.py` reads and normalizes the Excel data
+- `src/reporting.py` formats summaries and terminal previews
+- `src/plotting.py` creates the PNG chart
 - `data/Dagens lengde (2).xlsx` is the current source dataset
 - `requirements.txt` lists the Python dependencies
 
@@ -80,7 +83,7 @@ The script currently expects these exact source columns:
 - `Dagens lengeøkning\ni min, per sist målt dato`
 - `Total økning siden start\nav måling pr/min:`
 
-If the workbook changes, update `NORMALIZED_COLUMNS` in `src/main.py`.
+If the workbook changes, update `NORMALIZED_COLUMNS` in `src/data_loader.py`.
 
 ## Notes about Excel time values
 
@@ -92,7 +95,7 @@ This script now handles:
 - text values that can be parsed as durations
 - `datetime.time` values that often appear on Windows
 
-If you still get parsing errors, inspect the raw column values in the workbook first and then adjust `to_excel_timedelta()` in `src/main.py`.
+If you still get parsing errors, inspect the raw column values in the workbook first and then adjust `to_excel_timedelta()` in `src/data_loader.py`.
 
 ## Improvements worth doing next
 
