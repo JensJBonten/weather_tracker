@@ -3,9 +3,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from data_loader import DATA_FILE, load_daylight_data
-from plotting import save_plot
-from reporting import build_summary, print_preview
+try:
+    from .data_loader import DATA_FILE, load_daylight_data
+    from .plotting import save_plot
+    from .reporting import build_summary, print_preview
+except ImportError:
+    from data_loader import DATA_FILE, load_daylight_data
+    from plotting import save_plot
+    from reporting import build_summary, print_preview
 
 
 def parse_args() -> argparse.Namespace:

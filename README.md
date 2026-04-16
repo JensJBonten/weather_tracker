@@ -45,31 +45,44 @@ pip install -r requirements.txt
 Run the analysis:
 
 ```bash
-python src/main.py
+python -m src.main
 ```
 
 If you are using the checked-in Windows virtual environment:
 
 ```powershell
-.\venv\Scripts\python.exe .\src\main.py
+.\venv\Scripts\python.exe -m src.main
 ```
 
 Preview fewer or more rows:
 
 ```bash
-python src/main.py --preview 3
+python -m src.main --preview 3
 ```
 
 Save a plot:
 
 ```bash
-python src/main.py --plot output/daylight.png
+python -m src.main --plot output/daylight.png
 ```
 
 Use a different Excel file:
 
 ```bash
-python src/main.py --file data/my_other_file.xlsx
+python -m src.main --file data/my_other_file.xlsx
+```
+
+## Storage helpers
+
+The project also includes a small JSON storage layer in `src/storage.py` for
+persisting `DaylightMeasurement` objects to `data/saved_measurements.json`.
+
+## Tests
+
+Run the storage test suite from the repository root:
+
+```bash
+pytest
 ```
 
 ## Expected Excel columns
