@@ -1,16 +1,22 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
-try:
+if __package__:
     from .data_loader import DATA_FILE, load_daylight_data
+    from .measurement_mapper import measurements_from_dataframe
     from .plotting import save_plot
     from .reporting import build_summary, print_preview
-except ImportError:
+    from .storage import get_latest_measurement, save_measurements
+else:
+    sys.path.append(str(Path(__file__).resolve().parent))
     from data_loader import DATA_FILE, load_daylight_data
+    from measurement_mapper import measurements_from_dataframe
     from plotting import save_plot
     from reporting import build_summary, print_preview
+    from storage import save_measurements, get_latest_measurement
 
 
 def parse_args() -> argparse.Namespace:
@@ -48,6 +54,27 @@ def main() -> None:
         print(f"- {line}")
 
     print_preview(df, args.preview)
+    
+    # Konverterer dataframet til et målbart objekt. 
+    # Dette kobler "data-loader" av prosjektet med lagringsdelen. 
+    
+    measurements = measurements_from_dataframe(df, location_name="Grua")
+    
+    #Lagrer målingene til data/saved_measurement.json.
+    #Denne arbeidsflyten kan senere bli benyttet for API. 
+    
+    save_measurements(measurements)
+    
+    #laster den sist lagrede målingen tilbake fra minnet for å teste om det fungerer. 
+    latest_measurement = get_latest_measurement()
+    
+    if latest_measurement:
+        print("\nLatest saved measurement:")
+        print(f"- Date: {latest_measurement.date}")
+        print(f"- Location: {latest_measurement.location_name}")
+        print(f"- Day length: {latest_measurement.day_length}")
+        print(f"- Sunrise: {latest_measurement.sunrise}")
+        print(f"- Sunset: {latest_measurement.sunset}")
 
     if args.plot:
         save_plot(df, args.plot)
