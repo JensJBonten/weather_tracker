@@ -17,38 +17,43 @@ NORMALIZED_COLUMNS = {
 
 
 def load_daylight_data(file_path: Path) -> pd.DataFrame:
-    """Load the Excel file and normalize the columns used by the project."""
+    """Laster Excel-filen og normaliserer kolonnene prosjektet bruker."""
     if not file_path.exists():
         raise FileNotFoundError(f"Could not find Excel file: {file_path}")
 
+    # Leser hele regnearket før vi sjekker at de forventede kolonnene finnes.
     df = pd.read_excel(file_path)
     missing_columns = [column for column in NORMALIZED_COLUMNS if column not in df.columns]
     if missing_columns:
         missing = ", ".join(missing_columns)
         raise ValueError(f"Excel file is missing expected columns: {missing}")
 
+    # Gir kolonnene engelske interne navn, slik at resten av koden slipper Excel-tekstene.
     df = df.rename(columns=NORMALIZED_COLUMNS).copy()
     df["date"] = pd.to_datetime(df["date"], format="%d.%m.%y")
 
-    # Excel time cells may be read as fractional days, strings, or datetime.time
-    # objects depending on platform and workbook formatting.
+    # Excel-tid kan bli lest som desimaltall, tekst, datetime eller time.
+    # Derfor sendes alle tidskolonnene gjennom samme konverteringsfunksjon.
     for column in ("day_length", "sunrise", "sunset", "daily_increase", "total_increase"):
         df[column] = df[column].map(to_excel_timedelta)
 
+    # Sorterer på dato slik at oppsummering, graf og "siste måling" får riktig rekkefølge.
     return df.sort_values("date").reset_index(drop=True)
 
 
 def to_excel_timedelta(value: object) -> pd.Timedelta:
-    """Convert one Excel-style time value into a pandas Timedelta."""
+    """Konverterer én Excel-lignende tidsverdi til pandas Timedelta."""
     if pd.isna(value):
         return pd.NaT
 
+    # Verdier som allerede er tidsdifferanser kan brukes direkte eller pakkes inn av pandas.
     if isinstance(value, pd.Timedelta):
         return value
 
     if isinstance(value, timedelta):
         return pd.Timedelta(value)
 
+    # datetime og time inneholder klokkeslett, så vi henter ut timer, minutter og sekunder.
     if isinstance(value, datetime):
         return pd.Timedelta(
             hours=value.hour,
@@ -69,6 +74,7 @@ def to_excel_timedelta(value: object) -> pd.Timedelta:
         return pd.to_timedelta(value, unit="D")
 
     if isinstance(value, str):
+        # Tekst kan enten være et tall med komma/desimalpunkt eller en vanlig tidsstreng.
         stripped = value.strip()
         try:
             numeric_value = float(stripped.replace(",", "."))
@@ -76,4 +82,5 @@ def to_excel_timedelta(value: object) -> pd.Timedelta:
             return pd.to_timedelta(stripped)
         return pd.to_timedelta(numeric_value, unit="D")
 
+    # Hvis Excel-filen inneholder en ukjent type, feiler vi tydelig i stedet for å gjette.
     raise TypeError(f"Unsupported Excel time value: {value!r} ({type(value)!r})")

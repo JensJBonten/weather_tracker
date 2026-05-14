@@ -20,7 +20,7 @@ else:
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse command-line options for the daylight analysis script."""
+    """Leser inn valg som brukeren kan sende inn fra kommandolinjen."""
     parser = argparse.ArgumentParser(
         description="Analyze daylight development from the Excel file in data/."
     )
@@ -45,29 +45,31 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Run the CLI workflow."""
+    """Kjører hele arbeidsflyten fra Excel-fil til utskrift, lagring og valgfri graf."""
     args = parse_args()
+
+    # Leser Excel-filen og normaliserer kolonnenavn og tidsverdier.
     df = load_daylight_data(args.file)
 
+    # Skriver en kort oppsummering av datasettet i terminalen.
     print("Daylight dataset summary")
     for line in build_summary(df):
         print(f"- {line}")
 
+    # Viser de første radene, med mindre brukeren har valgt --preview 0.
     print_preview(df, args.preview)
-    
-    # Konverterer dataframet til et målbart objekt. 
-    # Dette kobler "data-loader" av prosjektet med lagringsdelen. 
-    
+
+    # Konverterer dataframet til målbare objekter.
+    # Dette kobler data-loader-delen av prosjektet med lagringsdelen.
     measurements = measurements_from_dataframe(df, location_name="Grua")
-    
-    #Lagrer målingene til data/saved_measurement.json.
-    #Denne arbeidsflyten kan senere bli benyttet for API. 
-    
+
+    # Lagrer målingene til data/saved_measurements.json.
+    # Denne arbeidsflyten kan senere bli benyttet for API.
     save_measurements(measurements)
-    
-    #laster den sist lagrede målingen tilbake fra minnet for å teste om det fungerer. 
+
+    # Laster den sist lagrede målingen tilbake fra fil for å teste at lagringen fungerer.
     latest_measurement = get_latest_measurement()
-    
+
     if latest_measurement:
         print("\nLatest saved measurement:")
         print(f"- Date: {latest_measurement.date}")
@@ -75,8 +77,12 @@ def main() -> None:
         print(f"- Day length: {latest_measurement.day_length}")
         print(f"- Sunrise: {latest_measurement.sunrise}")
         print(f"- Sunset: {latest_measurement.sunset}")
+        print(f"- Daily increase: {latest_measurement.daily_increase}")
+        print(f"- Total increase: {latest_measurement.total_increase}")
+        
 
     if args.plot:
+        # Lager en PNG-graf bare når brukeren sender inn --plot.
         save_plot(df, args.plot)
         print(f"\nSaved plot to {args.plot}")
 

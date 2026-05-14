@@ -1,2 +1,200 @@
 [
+    {
+        "date": "2026-01-22",
+        "location_name": "Grua",
+        "day_length": "07:09:00",
+        "sunrise": "08:54:00",
+        "sunset": "16:04:00",
+        "daily_increase": "00:00:00",
+        "total_increase": "00:00:00"
+    },
+    {
+        "date": "2026-01-23",
+        "location_name": "Grua",
+        "day_length": "07:13:00",
+        "sunrise": "08:52:00",
+        "sunset": "16:06:00",
+        "daily_increase": "00:04:00",
+        "total_increase": "00:04:00"
+    },
+    {
+        "date": "2026-01-26",
+        "location_name": "Grua",
+        "day_length": "07:27:00",
+        "sunrise": "08:46:00",
+        "sunset": "16:14:00",
+        "daily_increase": "00:14:00",
+        "total_increase": "00:18:00"
+    },
+    {
+        "date": "2026-01-27",
+        "location_name": "Grua",
+        "day_length": "07:32:00",
+        "sunrise": "08:44:00",
+        "sunset": "16:16:00",
+        "daily_increase": "00:05:00",
+        "total_increase": "00:23:00"
+    },
+    {
+        "date": "2026-01-29",
+        "location_name": "Grua",
+        "day_length": "07:42:00",
+        "sunrise": "08:39:00",
+        "sunset": "16:22:00",
+        "daily_increase": "00:10:00",
+        "total_increase": "00:33:00"
+    },
+    {
+        "date": "2026-01-30",
+        "location_name": "Grua",
+        "day_length": "07:47:00",
+        "sunrise": "08:37:00",
+        "sunset": "16:24:00",
+        "daily_increase": "00:05:00",
+        "total_increase": "00:38:00"
+    },
+    {
+        "date": "2026-02-02",
+        "location_name": "Grua",
+        "day_length": "08:02:00",
+        "sunrise": "08:30:00",
+        "sunset": "16:32:00",
+        "daily_increase": "00:15:00",
+        "total_increase": "00:53:00"
+    },
+    {
+        "date": "2026-02-03",
+        "location_name": "Grua",
+        "day_length": "08:07:00",
+        "sunrise": "08:27:00",
+        "sunset": "16:35:00",
+        "daily_increase": "00:05:00",
+        "total_increase": "00:58:00"
+    },
+    {
+        "date": "2026-02-04",
+        "location_name": "Grua",
+        "day_length": "08:12:00",
+        "sunrise": "08:25:00",
+        "sunset": "16:38:00",
+        "daily_increase": "00:05:00",
+        "total_increase": "01:03:00"
+    },
+    {
+        "date": "2026-02-09",
+        "location_name": "Grua",
+        "day_length": "08:38:00",
+        "sunrise": "08:12:00",
+        "sunset": "16:51:00",
+        "daily_increase": "00:26:00",
+        "total_increase": "01:29:00"
+    },
+    {
+        "date": "2026-02-10",
+        "location_name": "Grua",
+        "day_length": "08:44:00",
+        "sunrise": "08:10:00",
+        "sunset": "16:54:00",
+        "daily_increase": "00:06:00",
+        "total_increase": "01:35:00"
+    },
+    {
+        "date": "2026-02-12",
+        "location_name": "Grua",
+        "day_length": "08:54:00",
+        "sunrise": "08:04:00",
+        "sunset": "16:59:00",
+        "daily_increase": "00:10:00",
+        "total_increase": "01:45:00"
+    },
+    {
+        "date": "2026-02-13",
+        "location_name": "Grua",
+        "day_length": "09:00:00",
+        "sunrise": "08:01:00",
+        "sunset": "17:02:00",
+        "daily_increase": "00:06:00",
+        "total_increase": "01:51:00"
+    },
+    {
+        "date": "2026-02-17",
+        "location_name": "Grua",
+        "day_length": "09:21:00",
+        "sunrise": "07:51:00",
+        "sunset": "17:12:00",
+        "daily_increase": "00:21:00",
+        "total_increase": "02:12:00"
+    },
+    {
+        "date": "2026-02-18",
+        "location_name": "Grua",
+        "day_length": "09:27:00",
+        "sunrise": "07:48:00",
+        "sunset": "17:15:00",
+        "daily_increase": "00:06:00",
+        "total_increase": "02:18:00"
+    },
+    {
+        "date": "2026-02-20",
+        "location_name": "Grua",
+        "day_length": "09:38:00",
+        "sunrise": "07:42:00",
+        "sunset": "17:20:00",
+        "daily_increase": "00:11:00",
+        "total_increase": "02:29:00"
+    },
+    {
+        "date": "2026-02-23",
+        "location_name": "Grua",
+        "day_length": "09:54:00",
+        "sunrise": "07:34:00",
+        "sunset": "17:28:00",
+        "daily_increase": "00:16:00",
+        "total_increase": "02:45:00"
+    },
+    {
+        "date": "2026-02-27",
+        "location_name": "Grua",
+        "day_length": "10:16:00",
+        "sunrise": "07:22:00",
+        "sunset": "17:38:00",
+        "daily_increase": "00:22:00",
+        "total_increase": "03:07:00"
+    },
+    {
+        "date": "2026-03-03",
+        "location_name": "Grua",
+        "day_length": "10:38:00",
+        "sunrise": "07:10:00",
+        "sunset": "17:49:00",
+        "daily_increase": "00:22:00",
+        "total_increase": "03:29:00"
+    },
+    {
+        "date": "2026-03-06",
+        "location_name": "Grua",
+        "day_length": "10:55:00",
+        "sunrise": "07:01:00",
+        "sunset": "17:55:00",
+        "daily_increase": "00:17:00",
+        "total_increase": "03:46:00"
+    },
+    {
+        "date": "2026-03-09",
+        "location_name": "Grua",
+        "day_length": "11:11:00",
+        "sunrise": "06:52:00",
+        "sunset": "18:04:00",
+        "daily_increase": "00:16:00",
+        "total_increase": "04:02:00"
+    },
+    {
+        "date": "2026-03-10",
+        "location_name": "Grua",
+        "day_length": "11:17:00",
+        "sunrise": "06:49:00",
+        "sunset": "18:06:00",
+        "daily_increase": "00:06:00",
+        "total_increase": "04:08:00"
+    }
 ]

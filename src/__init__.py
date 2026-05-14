@@ -1,1 +1,1 @@
-"""Daylight analysis package."""
+"""Pakke for analyse av dagslysdata."""

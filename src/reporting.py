@@ -4,10 +4,11 @@ import pandas as pd
 
 
 def format_duration(value: pd.Timedelta) -> str:
-    """Format a Timedelta as HH:MM:SS for readable terminal output."""
+    """Formaterer en Timedelta som HH:MM:SS for lesbar terminalutskrift."""
     if pd.isna(value):
         return "N/A"
 
+    # Gjør tiden om til hele sekunder før den deles opp i timer, minutter og sekunder.
     total_seconds = int(value.total_seconds())
     hours, remainder = divmod(total_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
@@ -15,7 +16,8 @@ def format_duration(value: pd.Timedelta) -> str:
 
 
 def build_summary(df: pd.DataFrame) -> list[str]:
-    """Build a compact summary for the loaded dataset."""
+    """Bygger en kort oppsummering av det innlastede datasettet."""
+    # Første og siste rad viser utviklingen gjennom hele måleperioden.
     first_row = df.iloc[0]
     last_row = df.iloc[-1]
 
@@ -31,10 +33,11 @@ def build_summary(df: pd.DataFrame) -> list[str]:
 
 
 def print_preview(df: pd.DataFrame, rows: int) -> None:
-    """Print the first rows in a readable, formatted table."""
+    """Skriver ut de første radene som en lesbar og formatert tabell."""
     if rows <= 0:
         return
 
+    # Kopierer preview-radene slik at vi kan formatere visningen uten å endre originaldataene.
     preview = df.head(rows).copy()
     for column in ("day_length", "sunrise", "sunset", "daily_increase", "total_increase"):
         preview[column] = preview[column].map(format_duration)
