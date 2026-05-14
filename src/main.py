@@ -41,6 +41,12 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="Optional output path for a PNG chart.",
     )
+    parser.add_argument(
+        "--location",
+        type=str,
+        default="Grua",
+        help="Location name for the daylight measurements, Default: Grua.",
+    )
     return parser.parse_args()
 
 
@@ -61,7 +67,9 @@ def main() -> None:
 
     # Konverterer dataframet til målbare objekter.
     # Dette kobler data-loader-delen av prosjektet med lagringsdelen.
-    measurements = measurements_from_dataframe(df, location_name="Grua")
+    # Endrer hardkodet måleområdet til å bruke kommandolinjen i stedet.
+    # Kan bruke Excel/API-flyt senere for flere steder.
+    measurements = measurements_from_dataframe(df, location_name=args.location)
 
     # Lagrer målingene til data/saved_measurements.json.
     # Denne arbeidsflyten kan senere bli benyttet for API.
