@@ -47,6 +47,12 @@ def parse_args() -> argparse.Namespace:
         default="Grua",
         help="Location name for the daylight measurements, Default: Grua.",
     )
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Save loaded daylight measurement to JSON storage.",
+    )
+    
     return parser.parse_args()
 
 
@@ -64,35 +70,38 @@ def main() -> None:
 
     # Viser de første radene, med mindre brukeren har valgt --preview 0.
     print_preview(df, args.preview)
+    
+    if args.save:
+        # Konverterer dataframet til målbare objekter.
+        # Dette kobler data-loader-delen av prosjektet med lagringsdelen.
+        # Endrer hardkodet måleområdet til å bruke kommandolinjen i stedet.
+        # Kan bruke Excel/API-flyt senere for flere steder.
+        measurements = measurements_from_dataframe(df, location_name=args.location)
 
-    # Konverterer dataframet til målbare objekter.
-    # Dette kobler data-loader-delen av prosjektet med lagringsdelen.
-    # Endrer hardkodet måleområdet til å bruke kommandolinjen i stedet.
-    # Kan bruke Excel/API-flyt senere for flere steder.
-    measurements = measurements_from_dataframe(df, location_name=args.location)
+        # Lagrer målingene til data/saved_measurements.json.
+        # Denne arbeidsflyten kan senere bli benyttet for API.
+        save_measurements(measurements)
 
-    # Lagrer målingene til data/saved_measurements.json.
-    # Denne arbeidsflyten kan senere bli benyttet for API.
-    save_measurements(measurements)
+        # Laster den sist lagrede målingen tilbake fra fil for å teste at lagringen fungerer.
+        latest_measurement = get_latest_measurement()
 
-    # Laster den sist lagrede målingen tilbake fra fil for å teste at lagringen fungerer.
-    latest_measurement = get_latest_measurement()
-
-    if latest_measurement:
-        print("\nLatest saved measurement:")
-        print(f"- Date: {latest_measurement.date}")
-        print(f"- Location: {latest_measurement.location_name}")
-        print(f"- Day length: {latest_measurement.day_length}")
-        print(f"- Sunrise: {latest_measurement.sunrise}")
-        print(f"- Sunset: {latest_measurement.sunset}")
-        print(f"- Daily increase: {latest_measurement.daily_increase}")
-        print(f"- Total increase: {latest_measurement.total_increase}")
+        if latest_measurement:
+            print("\nLatest saved measurement:")
+            print(f"- Date: {latest_measurement.date}")
+            print(f"- Location: {latest_measurement.location_name}")
+            print(f"- Day length: {latest_measurement.day_length}")
+            print(f"- Sunrise: {latest_measurement.sunrise}")
+            print(f"- Sunset: {latest_measurement.sunset}")
+            print(f"- Daily increase: {latest_measurement.daily_increase}")
+            print(f"- Total increase: {latest_measurement.total_increase}")
         
 
     if args.plot:
         # Lager en PNG-graf bare når brukeren sender inn --plot.
         save_plot(df, args.plot)
         print(f"\nSaved plot to {args.plot}")
+    
+        
 
 
 if __name__ == "__main__":
