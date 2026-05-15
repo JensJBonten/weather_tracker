@@ -70,6 +70,13 @@ Use a different Excel file:
 
 ```bash
 python -m src.main --file data/my_other_file.xlsx
+
+```
+
+Run Summary and preview: 
+
+```bash
+python -m src.main 
 ```
 
 ## Storage helpers
