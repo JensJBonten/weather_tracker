@@ -2,4 +2,6 @@
 venv/
 __pycache__/
 *.pyc
+.pytest_cache/
 output/
+data/saved_measurements.json
