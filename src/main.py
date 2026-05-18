@@ -22,7 +22,7 @@ else:
 def parse_args() -> argparse.Namespace:
     """Leser inn valg som brukeren kan sende inn fra kommandolinjen."""
     parser = argparse.ArgumentParser(
-        description="Analyze daylight development from the Excel file in data/."
+        description="Daylight Measurement Dashboard: analyze daylight development from the Excel file in data/."
     )
     parser.add_argument(
         "--file",
@@ -64,7 +64,8 @@ def main() -> None:
     df = load_daylight_data(args.file)
 
     # Skriver en kort oppsummering av datasettet i terminalen.
-    print("Daylight dataset summary")
+    print("Daylight Measurement Dashboard")
+    print("Dataset summary")
     for line in build_summary(df):
         print(f"- {line}")
 

@@ -1,8 +1,8 @@
-# værprosjekt
+# Daylight Measurement Dashboard
 
-Small Python project for analyzing how daylight changes over time from an Excel sheet.
+Python dashboard project for analyzing how daylight measurements change over time from an Excel sheet.
 
-## What the project does
+## What the dashboard does
 
 The script reads the workbook in `data/`, normalizes the Norwegian column names, converts Excel date/time values into proper pandas types, and prints a short summary of:
 
@@ -81,7 +81,7 @@ python -m src.main
 
 ## Storage helpers
 
-The project also includes a small JSON storage layer in `src/storage.py` for
+The dashboard also includes a small JSON storage layer in `src/storage.py` for
 persisting `DaylightMeasurement` objects to `data/saved_measurements.json`.
 
 ## Tests
