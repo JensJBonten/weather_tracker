@@ -93,7 +93,7 @@ def render_history_table(df: pd.DataFrame) -> None:
     """Render the saved measurements as a table."""  
     
     st.divider()
-    st.subheader("Saved measurements")
+    st.subheader("Lagrede målinger")
     
     # Lager en egen Dataframe for visningen, slik at data i graf ikke blir brukt videre.
     display_df = df.copy()
@@ -127,7 +127,10 @@ def render_history_table(df: pd.DataFrame) -> None:
         }
     )
 
-    st.dataframe(df[visible_columns], use_container_width=True)
+    st.dataframe(display_df, 
+                 use_container_width=True,
+                 hide_index=True,
+                 height=400)
 
 
 def main() -> None:
