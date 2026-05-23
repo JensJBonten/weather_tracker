@@ -24,8 +24,8 @@ def load_dashboard_data() -> tuple[list, pd.DataFrame]:
     df["date"] = pd.to_datetime(df["date"])
 
     # Konverterer HH:MM:SS-strenger til tallverdier for grafer.
-    df["day_length_hours"] = pd.to_timedelta(df["day_length"]).dt.total_seconds() / 3600
-    df["daily_increase_minutes"] = pd.to_timedelta(df["daily_increase"]).dt.total_seconds() / 60
+    df["Day length (hours)"] = pd.to_timedelta(df["day_length"]).dt.total_seconds() / 3600
+    df["Daily increase (minutes)"] = pd.to_timedelta(df["daily_increase"]).dt.total_seconds() / 60
 
     return measurements, df
 
@@ -77,7 +77,7 @@ def render_charts(df: pd.DataFrame) -> None:
     st.line_chart(
         df,
         x="date",
-        y="day_length_hours",
+        y="Day length (hours)",
     )
 
     st.write("Daily increase measured in minutes.")
@@ -85,7 +85,7 @@ def render_charts(df: pd.DataFrame) -> None:
     st.bar_chart(
         df,
         x="date",
-        y="daily_increase_minutes",
+        y="Daily increase (minutes)",
     )
 
 
