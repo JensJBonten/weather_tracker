@@ -1,0 +1,229 @@
+from __future__ import annotations
+
+import sqlite3
+from pathlib import Path
+
+from .measurement import DaylightMeasurement
+
+# Mange kommentarer fordi jeg er fersk på SQlite.
+
+# SQLite-databasen lagres som én fil på disk.
+# Denne filen blir opprettet automatisk første gang vi kobler til den.
+DATABASE_FILE = Path("data") / "daylight.db"
+
+
+def initialize_database(database_file: Path = DATABASE_FILE) -> None:
+    """Create a SQLite database and measurements table if they do not exist."""
+
+    # Sørger for at data-mappen finnes før SQLite prøver å lage databasefilen.
+    # Hvis mappen allerede finnes, skjer ingenting.
+    database_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # sqlite3.connect(...) åpner en kobling til databasefilen.
+    # Hvis filen ikke finnes, lager SQLite den automatisk.
+    #
+    # "with" gjør at koblingen lukkes automatisk når blokken er ferdig.
+    with sqlite3.connect(database_file) as connection:
+        # connection.execute(...) kjører én SQL-kommando mot databasen.
+        #
+        # CREATE TABLE IF NOT EXISTS betyr:
+        # - lag tabellen hvis den ikke finnes
+        # - gjør ingenting hvis den allerede finnes
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS daylight_measurements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                -- Dato lagres som tekst i ISO-format, f.eks. 2026-03-10.
+                date TEXT NOT NULL,
+
+                -- Stedsnavn, f.eks. Grua, Oslo eller Tromsø.
+                location_name TEXT NOT NULL,
+
+                -- Tidsverdier lagres foreløpig som tekst i HH:MM:SS-format.
+                day_length TEXT NOT NULL,
+                sunrise TEXT NOT NULL,
+                sunset TEXT NOT NULL,
+                daily_increase TEXT NOT NULL,
+                total_increase TEXT NOT NULL,
+
+                -- Source forteller hvor målingen kommer fra.
+                -- Nå bruker vi 'excel', senere kan vi bruke 'api'.
+                source TEXT NOT NULL DEFAULT 'excel',
+
+                -- Denne hindrer at samme sted og dato lagres flere ganger.
+                -- Hvis vi prøver å lagre samme date + location_name igjen,
+                -- trigges ON CONFLICT-logikken i INSERT-spørringen under.
+                UNIQUE(date, location_name)
+            )
+            """
+        )
+
+
+def save_measurement(
+    measurement: DaylightMeasurement,
+    database_file: Path = DATABASE_FILE,
+    source: str = "excel",
+) -> None:
+    """Save one daylight measurement to SQLite.
+
+    If the same date/location already exists, the row is updated instead of duplicated.
+    """
+
+    # Før vi lagrer, sørger vi for at databasen og tabellen finnes.
+    # Dette gjør funksjonen trygg å kalle selv om databasen ikke er opprettet ennå.
+    initialize_database(database_file)
+
+    with sqlite3.connect(database_file) as connection:
+        # INSERT INTO betyr at vi prøver å legge inn en ny rad i tabellen.
+        #
+        # Spørsmålstegnene (?) er placeholders.
+        # Verdiene sendes inn separat i tuple-en under.
+        # Dette er tryggere enn å bygge SQL med f-strings, fordi det beskytter mot
+        # rare tegn i tekst og SQL injection.
+        #
+        # ON CONFLICT(date, location_name) betyr:
+        # Hvis en rad med samme dato og sted allerede finnes,
+        # ikke lag en duplikat. Oppdater heller den eksisterende raden.
+        connection.execute(
+            """
+            INSERT INTO daylight_measurements (
+                date,
+                location_name,
+                day_length,
+                sunrise,
+                sunset,
+                daily_increase,
+                total_increase,
+                source
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(date, location_name) DO UPDATE SET
+                day_length = excluded.day_length,
+                sunrise = excluded.sunrise,
+                sunset = excluded.sunset,
+                daily_increase = excluded.daily_increase,
+                total_increase = excluded.total_increase,
+                source = excluded.source
+            """,
+            (
+                # Verdiene her matcher spørsmålstegnene i VALUES-linjen over,
+                # i samme rekkefølge.
+                measurement.date,
+                measurement.location_name,
+                measurement.day_length,
+                measurement.sunrise,
+                measurement.sunset,
+                measurement.daily_increase,
+                measurement.total_increase,
+                source,
+            ),
+        )
+
+
+def save_measurements(
+    measurements: list[DaylightMeasurement],
+    database_file: Path = DATABASE_FILE,
+    source: str = "excel",
+) -> None:
+    """Save several daylight measurements to SQLite."""
+
+    # Lagrer én og én måling.
+    # Dette er enkelt å forstå og helt greit for små datasett.
+    #
+    # Senere kan dette optimaliseres med executemany(...),
+    # men det er ikke nødvendig nå.
+    for measurement in measurements:
+        save_measurement(measurement, database_file=database_file, source=source)
+        
+
+def load_measurements(
+    database_file: Path = DATABASE_FILE,
+) -> list[DaylightMeasurement]:
+    """
+    Load all daylight measurements from sqLite
+    """
+    
+    # Sørger for at databes og tabellen finnes før det forsøkes å lese av. 
+    # Dersom Databasen er tom, returnerer SELECT kun en tom liste. 
+    initialize_database(database_file)
+    
+    with sqlite3.connect(database_file) as connection: 
+        #SELECT henter kolonner fra tabbeln. 
+        #
+        # Det hentes ut felt som trengs for å bygge ut daylightMeasurement. 
+        # ID og source rukes ikke i modellen nå. 
+        
+        rows = connection.execute( 
+            """
+            SELECT
+                date,
+                location_name,
+                day_length, 
+                sunrise,
+                sunset, 
+                daily_increase, 
+                total_increase
+            FROM daylight_measurements
+            ORDER BY date
+            """
+        ).fetchall()
+    
+    # Ettersom rows er en liste med tupler, eksempelvis: 
+    # [("2026-03-10", "Grua", "11:17:00", ...)]
+    # Gjøres hvert tupel om til et Daylight...-objekt istedet. 
+    
+        return [
+        DaylightMeasurement(
+            date=row[0],
+            location_name=row[1],
+            day_length=row[2],
+            sunrise=row[3],
+            sunset=row[4],
+            daily_increase=row[5],
+            total_increase=row[6],
+        )
+        for row in rows
+    ]
+
+def get_latest_measurement(
+    database_file: Path = DATABASE_FILE,
+) -> DaylightMeasurement | None:
+    """Return the latest daylight measurement from SQLite, if one exists."""
+
+    # Sørger for at databasen og tabellen finnes før den blir lest av.
+    initialize_database(database_file)
+
+    with sqlite3.connect(database_file) as connection:
+        # ORDER BY date DESC sorterer nyeste dato først.
+        # LIMIT 1 gjør at vi bare henter én rad.
+        row = connection.execute(
+            """
+            SELECT
+                date,
+                location_name,
+                day_length,
+                sunrise,
+                sunset,
+                daily_increase,
+                total_increase
+            FROM daylight_measurements
+            ORDER BY date DESC
+            LIMIT 1
+            """
+        ).fetchone()
+
+    # fetchone() returnerer None hvis det ikke finnes noen rad.
+    if row is None:
+        return None
+
+    return DaylightMeasurement(
+        date=row[0],
+        location_name=row[1],
+        day_length=row[2],
+        sunrise=row[3],
+        sunset=row[4],
+        daily_increase=row[5],
+        total_increase=row[6],
+    ) 
+    
