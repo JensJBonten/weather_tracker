@@ -1,6 +1,18 @@
-# Daylight Measurement Dashboard
+# Daylight Dashboard
 
 Python dashboard project for analyzing how daylight measurements change over time from an Excel sheet.
+
+# Current status: 
+
+Currently the project supports: 
+
+- importing daylight measurements from Excel
+- normalizing and formatting daylight data
+- converting cleaned rows into DaylightMeasurement objects
+- saving measurements to JSON
+- viewing latest measurements and history in a Streamlit dashboard
+- visualizing day length and daily increase
+- running tests for storage, mapping and formatting
 
 ## What the dashboard does
 
@@ -42,7 +54,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the analysis:
+Run the analysis and preview it:
 
 ```bash
 python -m src.main
@@ -65,6 +77,12 @@ Save a plot:
 ```bash
 python -m src.main --plot output/daylight.png
 ```
+
+Save measurements to SQLite:
+
+```bash
+python -m src.main --save-sqlite --location Grua
+
 
 Use a different Excel file:
 

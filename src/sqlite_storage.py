@@ -3,7 +3,10 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-from .measurement import DaylightMeasurement
+try:
+    from .measurement import DaylightMeasurement
+except ImportError:
+    from measurement import DaylightMeasurement
 
 # Mange kommentarer fordi jeg er fersk på SQlite.
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from storage import load_measurements
+from sqlite_storage import load_measurements
 
 
 def load_dashboard_data() -> tuple[list, pd.DataFrame]:
@@ -146,7 +146,7 @@ def main() -> None:
 
     if not measurements:
         st.title("Daylight Dashboard")
-        st.warning("No saved measurements found. Run `python -m src.main --save --location Grua` first.")
+        st.warning("No SQLite measurements found. Run `python -m src.main --save-sqlite --location Grua` first.")
         return
 
 
