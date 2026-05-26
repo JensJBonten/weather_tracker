@@ -1,42 +1,69 @@
 # Daylight Dashboard
 
-Python dashboard project for analyzing how daylight measurements change over time from an Excel sheet.
+A Python project for importing, cleaning, storing, and visualizing daylight measurements.
 
-# Current status: 
+The project started as a learning exercise around pandas, file input, and basic reporting. It now uses a small data pipeline that reads daylight data from an Excel workbook, converts it into typed measurement objects, stores the history in SQLite, and presents the result in a Streamlit dashboard.
 
-Currently the project supports: 
+## Dashboard Preview
 
-- importing daylight measurements from Excel
-- normalizing and formatting daylight data
-- converting cleaned rows into DaylightMeasurement objects
-- saving measurements to JSON
-- viewing latest measurements and history in a Streamlit dashboard
-- visualizing day length and daily increase
-- running tests for storage, mapping and formatting
+![Dashboard preview](assets/dashboard-preview.png)
 
-## What the dashboard does
+## Features
 
-The script reads the workbook in `data/`, normalizes the Norwegian column names, converts Excel date/time values into proper pandas types, and prints a short summary of:
+- Imports daylight measurements from an Excel file in `data/` which contains data ive tracked over a period of time.
+- Normalizes Norwegian column names into consistent internal field names
+- Converts Excel date and time values with pandas
+- Maps cleaned rows into `DaylightMeasurement` objects
+- Stores measurement history in SQLite
+- Shows the latest measurement in a Streamlit dashboard
+- Displays day length and daily increase charts
+- Includes a history table and location filter
+- Keeps JSON storage as legacy/bootstrap storage for simple object persistence
+- Includes tests for formatting, mapping, JSON storage, and SQLite storage
 
-- the date range in the dataset
-- day length at the start and end of the period
-- sunrise and sunset development
-- total and largest daily increase in daylight
+## Tech Stack
 
-It can also save a chart as a PNG file.
+- Python
+- pandas
+- SQLite
+- Streamlit
+- Matplotlib
+- pytest
 
-## Project structure
+## Data Flow
 
-- `src/main.py` contains the CLI entry point
-- `src/data_loader.py` reads and normalizes the Excel data
-- `src/reporting.py` formats summaries and terminal previews
-- `src/plotting.py` creates the PNG chart
-- `data/Dagens lengde (2).xlsx` is the current source dataset
-- `requirements.txt` lists the Python dependencies
+```text
+Excel file -> pandas DataFrame -> DaylightMeasurement objects -> SQLite database -> Streamlit dashboard
+```
+
+## Project Structure
+
+```text
+src/
+  main.py                 CLI entry point for loading, previewing, saving, and plotting data
+  data_loader.py          Reads Excel data and normalizes columns and time values
+  measurement.py          DaylightMeasurement data model
+  measurement_mapper.py   Converts DataFrame rows into measurement objects
+  sqlite_storage.py       Main storage layer for dashboard data
+  storage.py              Legacy/bootstrap JSON storage
+  dashboard.py            Streamlit dashboard
+  reporting.py            Terminal summary and preview formatting
+  plotting.py             PNG chart export
+
+tests/
+  test_measurement_mapper.py
+  test_reporting.py
+  test_sqlite_storage.py
+  test_storage.py
+
+data/
+  Dagens lengde (2).xlsx  Source Excel workbook
+  daylight.db            SQLite database created by the app
+```
 
 ## Setup
 
-Create and activate a virtual environment, then install the dependencies.
+Create and activate a virtual environment, then install the dependencies:
 
 ```bash
 python -m venv .venv
@@ -54,91 +81,50 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the analysis and preview it:
+Run the CLI summary and preview:
 
 ```bash
 python -m src.main
 ```
 
-If you are using the checked-in Windows virtual environment:
-
-```powershell
-.\venv\Scripts\python.exe -m src.main
-```
-
-Preview fewer or more rows:
+Save imported measurements to SQLite for the dashboard:
 
 ```bash
-python -m src.main --preview 3
+python -m src.main --save-sqlite --location Grua
 ```
 
-Save a plot:
+Start the Streamlit dashboard:
+
+```bash
+streamlit run src/dashboard.py
+```
+
+Export a PNG chart:
 
 ```bash
 python -m src.main --plot output/daylight.png
 ```
 
-Save measurements to SQLite:
+Run the test suite:
 
 ```bash
-python -m src.main --save-sqlite --location Grua
-
-
-Use a different Excel file:
-
-```bash
-python -m src.main --file data/my_other_file.xlsx
-
+python -m pytest
 ```
 
-Run Summary and preview: 
+## Current Status
 
-```bash
-python -m src.main 
-```
+The project has a working Excel-to-SQLite pipeline, a Streamlit dashboard, chart export, and a small test suite. SQLite is the main storage used by the dashboard.
 
-## Storage helpers
+JSON storage still exists in `src/storage.py`, but it is kept as legacy/bootstrap storage rather than the primary application storage.
 
-The dashboard also includes a small JSON storage layer in `src/storage.py` for
-persisting `DaylightMeasurement` objects to `data/saved_measurements.json`.
+This project is still ongoing while i try to implement new solutions while learning, so some parts are intentionally simple and easy to follow.
 
-## Tests
+## Next Steps
 
-Run the storage test suite from the repository root:
-
-```bash
-pytest
-```
-
-## Expected Excel columns
-
-The script currently expects these exact source columns:
-
-- `Dato`
-- `Lengde`
-- `Sol opp`
-- `Sol Ned`
-- `Dagens lengeøkning\ni min, per sist målt dato`
-- `Total økning siden start\nav måling pr/min:`
-
-If the workbook changes, update `NORMALIZED_COLUMNS` in `src/data_loader.py`.
-
-## Notes about Excel time values
-
-Excel stores time values in a few different ways, and `pandas` may read them differently depending on platform and cell formatting.
-
-This script now handles:
-
-- Excel fractional day numbers
-- text values that can be parsed as durations
-- `datetime.time` values that often appear on Windows
-
-If you still get parsing errors, inspect the raw column values in the workbook first and then adjust `to_excel_timedelta()` in `src/data_loader.py`.
-
-## Improvements worth doing next
-
-- Move the current exploratory script into a package with separate modules for loading, validation, and plotting.
-- Add tests for the column mapping and date/time conversions.
-- Rename the Excel file to something simpler and stable, without spaces or `(2)`.
-- Keep the virtual environment out of the repository and recreate it from `requirements.txt`.
-- Add automatic export of cleaned data to CSV so the analysis becomes easier to reuse.
+- Add tests for Excel column normalization and time conversion edge cases
+- Add clearer validation messages for unexpected workbook formats
+- Improve dashboard filtering so charts and history can focus on the selected location
+- Add an actual dashboard preview image at `assets/dashboard-preview.png`
+- Keep refining naming, comments, and module boundaries as the project grows
+- Add API integration for daylight/weather data using the same `DaylightMeasurement` model
+- Store API measurements in SQLite with `source='api'`
