@@ -7,12 +7,12 @@ def test_format_duration_formats_timedelta_as_hh_mm_ss():
     """Tester om timedelta blir formatert riktig, altså HH:MM:SS."""
 
     value = pd.Timedelta(hours=4, minutes=8)
-    result = format_duration(value)
-    assert result == "04:08:00"
+    formatted_duration = format_duration(value)
+    assert formatted_duration == "04:08:00"
 
 
 def test_format_duration_returns_na_for_missing_value():
     """Sjekker at manglende verdi blir vist som N/A."""
-    result = format_duration(pd.NaT)
+    formatted_duration = format_duration(pd.NaT)
 
-    assert result == "N/A"
+    assert formatted_duration == "N/A"

@@ -5,7 +5,7 @@ from src.measurement_mapper import measurements_from_dataframe
 
 def test_measurements_from_dataframe_returns_measurement_list():
     # Bygger et lite DataFrame med samme typer som data_loader returnerer.
-    df = pd.DataFrame(
+    daylight_dataframe = pd.DataFrame(
         [
             {
                 "date": pd.Timestamp("2026-01-22"),
@@ -27,7 +27,7 @@ def test_measurements_from_dataframe_returns_measurement_list():
     )
 
     # Mapper DataFrame-radene til lagringsmodellen og kontrollerer formatet.
-    measurements = measurements_from_dataframe(df, location_name="Grua")
+    measurements = measurements_from_dataframe(daylight_dataframe, location_name="Grua")
 
     assert len(measurements) == 2
     assert measurements[0].date == "2026-01-22"

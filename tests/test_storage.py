@@ -33,12 +33,12 @@ def test_save_and_load_measurements(tmp_path, monkeypatch):
 
     # Sjekker at lagring og innlasting beholder både antall og datoverdier.
     save_measurements(measurements)
-    loaded = load_measurements()
+    loaded_measurements = load_measurements()
 
-    assert len(loaded) == 2
-    assert loaded[0].date == "16-04-26"
-    assert loaded[1].date == "17-04-26"
-    assert loaded[0].daily_increase == "00:05:00"
-    assert loaded[0].total_increase == "04:08:00"
-    assert loaded[1].daily_increase == "00:05:00"
-    assert loaded[1].total_increase == "04:13:00"
+    assert len(loaded_measurements) == 2
+    assert loaded_measurements[0].date == "16-04-26"
+    assert loaded_measurements[1].date == "17-04-26"
+    assert loaded_measurements[0].daily_increase == "00:05:00"
+    assert loaded_measurements[0].total_increase == "04:08:00"
+    assert loaded_measurements[1].daily_increase == "00:05:00"
+    assert loaded_measurements[1].total_increase == "04:13:00"

@@ -9,7 +9,7 @@ from sqlite_storage import load_measurements
 def load_dashboard_data() -> tuple[list, pd.DataFrame]:
     """Load saved measurements and convert them to a DataFrame for dashboard use."""
 
-    # Leser alle lagrede målinger fra JSON.
+    # Leser alle lagrede målinger fra SQLite, som er hovedlagringen for dashboardet.
     measurements = load_measurements()
 
     if not measurements:
@@ -17,17 +17,21 @@ def load_dashboard_data() -> tuple[list, pd.DataFrame]:
 
     # Gjør DaylightMeasurement-objektene om til dictionaries,
     # slik at pandas og Streamlit kan bruke dem.
-    measurement_data = [measurement.to_dict() for measurement in measurements]
-    df = pd.DataFrame(measurement_data)
+    measurement_records = [measurement.to_dict() for measurement in measurements]
+    measurements_dataframe = pd.DataFrame(measurement_records)
 
     # Konverterer dato fra tekst til datetime for riktig sortering og plotting.
-    df["date"] = pd.to_datetime(df["date"])
+    measurements_dataframe["date"] = pd.to_datetime(measurements_dataframe["date"])
 
     # Konverterer HH:MM:SS-strenger til tallverdier for grafer.
-    df["Day length (hours)"] = pd.to_timedelta(df["day_length"]).dt.total_seconds() / 3600
-    df["Daily increase (minutes)"] = pd.to_timedelta(df["daily_increase"]).dt.total_seconds() / 60
+    measurements_dataframe["Day length (hours)"] = (
+        pd.to_timedelta(measurements_dataframe["day_length"]).dt.total_seconds() / 3600
+    )
+    measurements_dataframe["Daily increase (minutes)"] = (
+        pd.to_timedelta(measurements_dataframe["daily_increase"]).dt.total_seconds() / 60
+    )
 
-    return measurements, df
+    return measurements, measurements_dataframe
 
 
 def render_header(measurement_count: int) -> None:
@@ -38,10 +42,10 @@ def render_header(measurement_count: int) -> None:
     st.caption(f"Loaded {measurement_count} measurements")
  
     
-def render_location_filter(measurement_dataframe: pd.DataFrame) -> str:
+def render_location_filter(measurements_dataframe: pd.DataFrame) -> str:
     """Rendering a location selecter and returning the selected location."""
         
-    available_locations = sorted(measurement_dataframe["location_name"].unique())
+    available_locations = sorted(measurements_dataframe["location_name"].unique())
         
     selected_location = st.selectbox(
         "Selected location",
@@ -77,7 +81,7 @@ def render_latest_metrics(latest_measurement) -> None:
         st.metric("Total increase", latest_measurement.total_increase)
 
 
-def render_charts(df: pd.DataFrame) -> None:
+def render_charts(measurements_dataframe: pd.DataFrame) -> None:
     """Render dashboard charts for daylight development."""
 
     st.divider()
@@ -88,7 +92,7 @@ def render_charts(df: pd.DataFrame) -> None:
     st.write("Day length measured in hours: ")
     
     st.line_chart(
-        df,
+        measurements_dataframe,
         x="date",
         y="Day length (hours)",
     )
@@ -96,25 +100,25 @@ def render_charts(df: pd.DataFrame) -> None:
     st.write("Daily increase measured in minutes.")
 
     st.bar_chart(
-        df,
+        measurements_dataframe,
         x="date",
         y="Daily increase (minutes)",
     )
 
 
-def render_history_table(df: pd.DataFrame) -> None:
+def render_history_table(measurements_dataframe: pd.DataFrame) -> None:
     """Render the saved measurements as a table."""  
     
     st.divider()
     st.subheader("Lagrede målinger")
     
-    # Lager en egen Dataframe for visningen, slik at data i graf ikke blir brukt videre.
-    display_df = df.copy()
+    # Lager en egen DataFrame for visningen, slik at formatering her ikke endrer grafdataene.
+    display_dataframe = measurements_dataframe.copy()
     
-    #Dato og klokkeslett:
-    display_df["date"] = display_df["date"].dt.date
+    # Viser bare datoen, uten klokkeslettet pandas legger til.
+    display_dataframe["date"] = display_dataframe["date"].dt.date
     
-    #Kolonner som er relevante for brukeren.
+    # Kolonner som er relevante for brukeren.
     visible_columns = [
         "date",
         "location_name",
@@ -125,10 +129,10 @@ def render_history_table(df: pd.DataFrame) -> None:
         "total_increase",
     ]
     
-    display_df = display_df[visible_columns]
+    display_dataframe = display_dataframe[visible_columns]
 
     # Gir kolonnene mer lesbare navn i dashboardet.
-    display_df = display_df.rename(
+    display_dataframe = display_dataframe.rename(
         columns={
             "date": "Date",
             "location_name": "Location",
@@ -140,10 +144,12 @@ def render_history_table(df: pd.DataFrame) -> None:
         }
     )
 
-    st.dataframe(display_df, 
-                 use_container_width=True,
-                 hide_index=True,
-                 height=400)
+    st.dataframe(
+        display_dataframe,
+        use_container_width=True,
+        hide_index=True,
+        height=400,
+    )
 
 
 def main() -> None:
@@ -155,7 +161,7 @@ def main() -> None:
         layout="wide",
     )
 
-    measurements, df = load_dashboard_data()
+    measurements, measurements_dataframe = load_dashboard_data()
 
     if not measurements:
         st.title("Daylight Dashboard")
@@ -163,27 +169,29 @@ def main() -> None:
     
         return
 
-    #Siste målingen som blir brukt til nøkkeltallene øverst.
+    # Siste målingen blir brukt til nøkkeltallene øverst.
     measurements, measurements_dataframe = load_dashboard_data()
 
     render_header(len(measurements))
-    selected_location = render_location_filter(measurements_dataframe) #Bruker kan velge sted på dashbordet.
-    
-    # Filtrerer både målingslisten og DataFrame-en til valgt sted.
+    selected_location = render_location_filter(measurements_dataframe)
+
+    # Filtrerer målingslisten til valgt sted for nøkkeltallene øverst.
     filtered_measurements = [
         measurement
         for measurement in measurements
         if measurement.location_name == selected_location
     ]
 
+    # Filtrerer DataFrame-en til valgt sted for grafer og tabell.
     filtered_measurements_dataframe = measurements_dataframe[
         measurements_dataframe["location_name"] == selected_location
     ].copy()
-    
+
     latest_measurement = filtered_measurements[-1]
+
     render_latest_metrics(latest_measurement)
-    render_charts(df)
-    render_history_table(df)
+    render_charts(filtered_measurements_dataframe)
+    render_history_table(filtered_measurements_dataframe)
 
 
 if __name__ == "__main__":

@@ -138,56 +138,53 @@ def save_measurements(
     # men det er ikke nødvendig nå.
     for measurement in measurements:
         save_measurement(measurement, database_file=database_file, source=source)
-        
+
 
 def load_measurements(
     database_file: Path = DATABASE_FILE,
 ) -> list[DaylightMeasurement]:
-    """
-    Load all daylight measurements from sqLite
-    """
-    
-    # Sørger for at databes og tabellen finnes før det forsøkes å lese av. 
-    # Dersom Databasen er tom, returnerer SELECT kun en tom liste. 
+    """Load all daylight measurements from SQLite."""
+
+    # Sørger for at databasen og tabellen finnes før vi forsøker å lese fra den.
+    # Dersom databasen er tom, returnerer SELECT bare en tom liste.
     initialize_database(database_file)
-    
-    with sqlite3.connect(database_file) as connection: 
-        #SELECT henter kolonner fra tabbeln. 
+
+    with sqlite3.connect(database_file) as connection:
+        # SELECT henter kolonner fra tabellen.
         #
-        # Det hentes ut felt som trengs for å bygge ut daylightMeasurement. 
-        # ID og source rukes ikke i modellen nå. 
-        
-        rows = connection.execute( 
+        # Her hentes bare feltene som trengs for å bygge DaylightMeasurement.
+        # id og source brukes ikke i modellen nå.
+        database_rows = connection.execute(
             """
             SELECT
                 date,
                 location_name,
-                day_length, 
+                day_length,
                 sunrise,
-                sunset, 
-                daily_increase, 
+                sunset,
+                daily_increase,
                 total_increase
             FROM daylight_measurements
             ORDER BY date
             """
         ).fetchall()
-    
-    # Ettersom rows er en liste med tupler, eksempelvis: 
+
+    # database_rows er en liste med tupler, eksempelvis:
     # [("2026-03-10", "Grua", "11:17:00", ...)]
-    # Gjøres hvert tupel om til et Daylight...-objekt istedet. 
-    
-        return [
+    # Derfor gjøres hver tuple om til et DaylightMeasurement-objekt.
+    return [
         DaylightMeasurement(
-            date=row[0],
-            location_name=row[1],
-            day_length=row[2],
-            sunrise=row[3],
-            sunset=row[4],
-            daily_increase=row[5],
-            total_increase=row[6],
+            date=database_row[0],
+            location_name=database_row[1],
+            day_length=database_row[2],
+            sunrise=database_row[3],
+            sunset=database_row[4],
+            daily_increase=database_row[5],
+            total_increase=database_row[6],
         )
-        for row in rows
+        for database_row in database_rows
     ]
+
 
 def get_latest_measurement(
     database_file: Path = DATABASE_FILE,
@@ -200,7 +197,7 @@ def get_latest_measurement(
     with sqlite3.connect(database_file) as connection:
         # ORDER BY date DESC sorterer nyeste dato først.
         # LIMIT 1 gjør at vi bare henter én rad.
-        row = connection.execute(
+        latest_database_row = connection.execute(
             """
             SELECT
                 date,
@@ -217,16 +214,15 @@ def get_latest_measurement(
         ).fetchone()
 
     # fetchone() returnerer None hvis det ikke finnes noen rad.
-    if row is None:
+    if latest_database_row is None:
         return None
 
     return DaylightMeasurement(
-        date=row[0],
-        location_name=row[1],
-        day_length=row[2],
-        sunrise=row[3],
-        sunset=row[4],
-        daily_increase=row[5],
-        total_increase=row[6],
-    ) 
-    
+        date=latest_database_row[0],
+        location_name=latest_database_row[1],
+        day_length=latest_database_row[2],
+        sunrise=latest_database_row[3],
+        sunset=latest_database_row[4],
+        daily_increase=latest_database_row[5],
+        total_increase=latest_database_row[6],
+    )

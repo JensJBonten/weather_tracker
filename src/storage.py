@@ -16,9 +16,12 @@ def load_measurements() -> list[DaylightMeasurement]:
 
     # Leser rå JSON-data og gjør hvert element tilbake til et DaylightMeasurement-objekt.
     with open(STORAGE_FILE, "r", encoding="utf-8") as file:
-        raw_data = json.load(file)
+        raw_measurement_data = json.load(file)
 
-    return [DaylightMeasurement.from_dict(item) for item in raw_data]
+    return [
+        DaylightMeasurement.from_dict(measurement_data)
+        for measurement_data in raw_measurement_data
+    ]
 
 def save_measurements(measurements: list[DaylightMeasurement]) -> None:
     """Skriver alle målinger til disk som JSON."""
@@ -26,10 +29,10 @@ def save_measurements(measurements: list[DaylightMeasurement]) -> None:
     STORAGE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     # Konverterer objektene til dictionaries før json.dump kan lagre dem.
-    raw_data = [measurement.to_dict() for measurement in measurements]
+    measurement_records = [measurement.to_dict() for measurement in measurements]
 
     with open(STORAGE_FILE, "w", encoding="utf-8") as file:
-        json.dump(raw_data, file, indent=4)
+        json.dump(measurement_records, file, indent=4)
 
 
 def add_measurement(measurement: DaylightMeasurement) -> None:

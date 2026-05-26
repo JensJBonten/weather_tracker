@@ -96,20 +96,20 @@ def main() -> None:
     args = parse_args()
 
     # Leser Excel-filen og normaliserer kolonnenavn og tidsverdier.
-    df = load_daylight_data(args.file)
+    daylight_dataframe = load_daylight_data(args.file)
 
     # Skriver en kort oppsummering av datasettet i terminalen.
     print("Daylight Measurement Dashboard")
     print("Dataset summary")
-    for line in build_summary(df):
+    for line in build_summary(daylight_dataframe):
         print(f"- {line}")
 
     # Viser de første radene, med mindre brukeren har valgt --preview 0.
-    print_preview(df, args.preview)
+    print_preview(daylight_dataframe, args.preview)
 
     # Konverterer DataFrame-radene til DaylightMeasurement-objekter.
     # Denne listen kan brukes av både JSON-lagring og SQLite-lagring.
-    measurements = measurements_from_dataframe(df, location_name=args.location)
+    measurements = measurements_from_dataframe(daylight_dataframe, location_name=args.location)
 
     if args.save:
         # Lagrer målingene til data/saved_measurements.json.
@@ -135,7 +135,7 @@ def main() -> None:
 
     if args.plot:
         # Lager en PNG-graf bare når brukeren sender inn --plot.
-        save_plot(df, args.plot)
+        save_plot(daylight_dataframe, args.plot)
         print(f"\nSaved plot to {args.plot}")
 
 

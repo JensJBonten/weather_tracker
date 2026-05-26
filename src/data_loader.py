@@ -22,23 +22,25 @@ def load_daylight_data(file_path: Path) -> pd.DataFrame:
         raise FileNotFoundError(f"Could not find Excel file: {file_path}")
 
     # Leser hele regnearket før vi sjekker at de forventede kolonnene finnes.
-    df = pd.read_excel(file_path)
-    missing_columns = [column for column in NORMALIZED_COLUMNS if column not in df.columns]
+    daylight_dataframe = pd.read_excel(file_path)
+    missing_columns = [
+        column for column in NORMALIZED_COLUMNS if column not in daylight_dataframe.columns
+    ]
     if missing_columns:
         missing = ", ".join(missing_columns)
         raise ValueError(f"Excel file is missing expected columns: {missing}")
 
     # Gir kolonnene engelske interne navn, slik at resten av koden slipper Excel-tekstene.
-    df = df.rename(columns=NORMALIZED_COLUMNS).copy()
-    df["date"] = pd.to_datetime(df["date"], format="%d.%m.%y")
+    daylight_dataframe = daylight_dataframe.rename(columns=NORMALIZED_COLUMNS).copy()
+    daylight_dataframe["date"] = pd.to_datetime(daylight_dataframe["date"], format="%d.%m.%y")
 
     # Excel-tid kan bli lest som desimaltall, tekst, datetime eller time.
     # Derfor sendes alle tidskolonnene gjennom samme konverteringsfunksjon.
     for column in ("day_length", "sunrise", "sunset", "daily_increase", "total_increase"):
-        df[column] = df[column].map(to_excel_timedelta)
+        daylight_dataframe[column] = daylight_dataframe[column].map(to_excel_timedelta)
 
     # Sorterer på dato slik at oppsummering, graf og "siste måling" får riktig rekkefølge.
-    return df.sort_values("date").reset_index(drop=True)
+    return daylight_dataframe.sort_values("date").reset_index(drop=True)
 
 
 def to_excel_timedelta(value: object) -> pd.Timedelta:
