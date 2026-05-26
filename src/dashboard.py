@@ -36,6 +36,19 @@ def render_header(measurement_count: int) -> None:
     st.title("Daylight Dashboard")
     st.write("A dashboard for daylight and seasonal development.")
     st.caption(f"Loaded {measurement_count} measurements")
+ 
+    
+def render_location_filter(measurement_dataframe: pd.DataFrame) -> str:
+    """Rendering a location selecter and returning the selected location."""
+        
+    available_locations = sorted(measurement_dataframe["location_name"].unique())
+        
+    selected_location = st.selectbox(
+        "Selected location",
+        options=available_locations,
+    )
+        
+    return selected_location
 
 
 def render_latest_metrics(latest_measurement) -> None:
@@ -147,13 +160,27 @@ def main() -> None:
     if not measurements:
         st.title("Daylight Dashboard")
         st.warning("No SQLite measurements found. Run `python -m src.main --save-sqlite --location Grua` first.")
+    
         return
 
-
     #Siste målingen som blir brukt til nøkkeltallene øverst.
-    latest_measurement = measurements[-1]
+    measurements, measurements_dataframe = load_dashboard_data()
 
     render_header(len(measurements))
+    selected_location = render_location_filter(measurements_dataframe) #Bruker kan velge sted på dashbordet.
+    
+    # Filtrerer både målingslisten og DataFrame-en til valgt sted.
+    filtered_measurements = [
+        measurement
+        for measurement in measurements
+        if measurement.location_name == selected_location
+    ]
+
+    filtered_measurements_dataframe = measurements_dataframe[
+        measurements_dataframe["location_name"] == selected_location
+    ].copy()
+    
+    latest_measurement = filtered_measurements[-1]
     render_latest_metrics(latest_measurement)
     render_charts(df)
     render_history_table(df)

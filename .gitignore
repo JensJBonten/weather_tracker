@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 output/
 data/saved_measurements.json
+data/daylight.db
