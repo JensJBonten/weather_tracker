@@ -6,7 +6,9 @@ The project started as a learning exercise around pandas, file input, and basic 
 
 ## Dashboard Preview
 
-![Dashboard preview](assets/dashboard-preview.png)
+![Dashboard top page preview](/screenshots/Dashboard1.png)
+![Dashboard bottom page preview](/screenshots/Dashboard2.png)
+
 
 ## Features
 
@@ -113,18 +115,20 @@ python -m pytest
 
 ## Current Status
 
-The project has a working Excel-to-SQLite pipeline, a Streamlit dashboard, chart export, and a small test suite. SQLite is the main storage used by the dashboard.
+The project has a working Excel-to-SQLite pipeline, a Streamlit dashboard, chart export, location filtering, and a small test suite. SQLite is the main storage used by the dashboard.
 
 JSON storage still exists in `src/storage.py`, but it is kept as legacy/bootstrap storage rather than the primary application storage.
 
-This project is still ongoing while i try to implement new solutions while learning, so some parts are intentionally simple and easy to follow.
+A MET Sunrise API client has been added as the next step toward replacing manual Excel input with API-based daylight measurements.
+
+This project is still ongoing while I implement new solutions and continue learning, so some parts are intentionally simple and easy to follow.
+
 
 ## Next Steps
 
+- Parse MET Sunrise API responses into sunrise and sunset values
+- Convert API data into `DaylightMeasurement` objects
+- Store API measurements in SQLite with `source='api'`
 - Add tests for Excel column normalization and time conversion edge cases
 - Add clearer validation messages for unexpected workbook formats
-- Improve dashboard filtering so charts and history can focus on the selected location
-- Add an actual dashboard preview image at `assets/dashboard-preview.png`
 - Keep refining naming, comments, and module boundaries as the project grows
-- Add API integration for daylight/weather data using the same `DaylightMeasurement` model
-- Store API measurements in SQLite with `source='api'`
